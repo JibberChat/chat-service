@@ -1,35 +1,28 @@
-/* eslint-disable no-console */
-import { green, yellow } from 'chalk';
-import { catchError, tap } from 'rxjs';
-
 import {
   CallHandler,
   ExecutionContext,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { yellow, green } from 'chalk';
+import { TcpContext } from '@nestjs/microservices';
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler) {
-    const req = context.switchToHttp().getRequest();
-    const { statusCode } = context.switchToHttp().getResponse();
-    const { url, method, params, query, body } = req;
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const now = Date.now();
+    const req = context.switchToRpc().getContext<TcpContext>();
+    const method = req.getPattern();
+    const data = req.getArgs();
 
-    console.log(yellow('Request'), { url, method, params, query, body });
-    return next
-      .handle()
-      .pipe(
-        catchError((err) => {
-          throw err;
-        }),
-      )
-      .pipe(
-        tap((data) => {
-          // if request url is /api/metrics
-          if (url === '/api/metrics') return;
-          console.log(green('Response'), { statusCode, data });
-        }),
-      );
+    console.log(yellow('Request'), { method, data });
+
+    return next.handle().pipe(
+      tap((data) => {
+        console.log(green('Response'), { duration: Date.now() - now, data });
+      }),
+    );
   }
 }
