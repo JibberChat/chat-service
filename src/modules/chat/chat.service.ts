@@ -1,9 +1,17 @@
 import { Injectable } from "@nestjs/common";
 
+import { Message } from "./chat.interface";
+
 @Injectable()
 export class ChatService {
-  getMessages(): string {
-    return "Hello World!, Messages";
+  async getRoomMessages(roomId: string): Promise<Message[]> {
+    return [
+      {
+        id: "1",
+        message: "Hello World",
+        userId: "1",
+      },
+    ];
   }
 
   // createMessage(data: { message: string; userId: string }): string {
