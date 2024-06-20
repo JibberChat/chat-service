@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { INestApplication, INestMicroservice, Injectable, OnModuleDestroy, OnModuleInit, Scope } from "@nestjs/common";
+import { INestMicroservice, Injectable, OnModuleDestroy, OnModuleInit, Scope } from "@nestjs/common";
 
 import { LoggerService } from "@infrastructure/logger/services/logger.service";
 
