@@ -6,6 +6,7 @@ import { Module } from "@nestjs/common";
 
 import { ConfigurationModule } from "@infrastructure/configuration/configuration.module";
 import { ConfigurationService } from "@infrastructure/configuration/services/configuration.service";
+import { DatabaseModule } from "@infrastructure/database/database.module";
 
 import { ChatModule } from "@modules/chat/chat.module";
 import { RoomModule } from "@modules/room/room.module";
@@ -31,6 +32,7 @@ import { RoomModule } from "@modules/room/room.module";
       inject: [ConfigurationService],
     }),
 
+    DatabaseModule,
     ConfigurationModule,
     ChatModule,
     RoomModule,
