@@ -14,19 +14,20 @@ datasource db {
 }
 
 model Room {
-  id   String @id @default(uuid())
-  name String
+  id        String @id @default(uuid())
+  name      String
+  creatorId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Message Message[]
+  messages Message[]
+  members  UserRoom[]
 }
 
 model Message {
-  id   String @id @default(uuid())
-  text String
-
+  id     String @id @default(uuid())
+  text   String
   userId String
 
   roomId String
@@ -34,4 +35,17 @@ model Message {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model UserRoom {
+  // id     String @id @default(uuid())
+  userId String
+
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, roomId])
 }

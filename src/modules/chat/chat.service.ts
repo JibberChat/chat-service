@@ -1,8 +1,6 @@
 import { Cache } from "cache-manager";
 import { firstValueFrom, timeout } from "rxjs";
-import { User } from "src/entities/user.entity";
 
-// import { User } from "src/entities/user.entity";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
@@ -11,6 +9,8 @@ import { Message } from "./chat.interface";
 
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { PrismaService } from "@infrastructure/database/services/prisma.service";
+
+import { User } from "@entities/user.entity";
 
 @Injectable()
 export class ChatService {
@@ -44,7 +44,6 @@ export class ChatService {
     const users: User[] = await firstValueFrom(
       this.userService.send({ cmd: "getUsers" }, { userIds }).pipe(timeout(5000))
     );
-    console.log("users", users);
 
     const tab = messages.map((message) => {
       const user = users.find((user) => user.id === message.userId);

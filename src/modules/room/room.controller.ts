@@ -9,7 +9,7 @@ export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
   @MessagePattern({ cmd: "getUserRooms" })
-  async getUserRooms(userId: string): Promise<Room> {
+  async getUserRooms(userId: string): Promise<Room[]> {
     return await this.roomService.getUserRooms(userId);
   }
 

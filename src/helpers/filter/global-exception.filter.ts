@@ -1,37 +1,28 @@
 /* eslint-disable no-console */
-import { red } from 'chalk';
-import { Response } from 'express';
-import { inspect } from 'util';
+import { red } from "chalk";
+import { Response } from "express";
+import { inspect } from "util";
 
-import {
-  ArgumentsHost,
-  Catch,
-  HttpException,
-  HttpServer,
-  HttpStatus,
-} from '@nestjs/common';
-import { BaseExceptionFilter } from '@nestjs/core';
+import { ArgumentsHost, Catch, HttpException, HttpServer, HttpStatus } from "@nestjs/common";
+import { BaseExceptionFilter } from "@nestjs/core";
 
-import { LoggerService } from '@infrastructure/logger/services/logger.service';
+import { LoggerService } from "@infrastructure/logger/services/logger.service";
 
-import MESSAGES from '@helpers/messages/http-messages';
+import MESSAGES from "@helpers/messages/http-messages";
 
-const LOG_PREFIX = red('Response/Error');
+const LOG_PREFIX = red("Response/Error");
 
 function getHttpExceptionMessage(exception: HttpException): string {
   const response = exception.getResponse();
-  if (typeof response === 'object') {
-    if ('message' in response) {
-      if (typeof response.message === 'string') return response.message;
-      if (
-        Array.isArray(response.message) &&
-        response.message.every((message) => typeof message === 'string')
-      )
-        return response.message.join('\n');
+  if (typeof response === "object") {
+    if ("message" in response) {
+      if (typeof response.message === "string") return response.message;
+      if (Array.isArray(response.message) && response.message.every((message) => typeof message === "string"))
+        return response.message.join("\n");
     }
   }
 
-  if (typeof response === 'string') return response;
+  if (typeof response === "string") return response;
   return exception.message;
 }
 
@@ -45,7 +36,7 @@ export class GlobalExceptionFilter extends BaseExceptionFilter {
   }
 
   returnError(error: Error, response: Response) {
-    this.logger.error(inspect(error), error.stack ?? String(error), 'LogError');
+    this.logger.error(inspect(error), error.stack ?? String(error), "LogError");
 
     console.log(LOG_PREFIX, {
       statusCode: HttpStatus.BAD_REQUEST,
@@ -68,18 +59,11 @@ export class GlobalExceptionFilter extends BaseExceptionFilter {
         console.log(LOG_PREFIX, { statusCode, message });
         response.status(statusCode).json({ statusCode, message });
       } else {
-        // Unexpected internal error, send it to sentry
-        this.returnError(
-          new Error(`Unexpected internal error, ${inspect(exception)}`),
-          response,
-        );
+        this.returnError(new Error(`Unexpected internal error, ${inspect(exception)}`), response);
       }
     } else {
       // This should never happen: it means that the exception itself is not a JS error; we rethrow it as an unexcepted error type
-      this.returnError(
-        new Error(`Unexpected error type, ${inspect(exception)}`),
-        response,
-      );
+      this.returnError(new Error(`Unexpected error type, ${inspect(exception)}`), response);
     }
   }
 }
