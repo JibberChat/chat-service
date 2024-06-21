@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 
 import { APP_NAME, APP_PORT, APP_VERSION, AppConfiguration, NODE_ENV } from "../model/app-configuration";
 import { REDIS_HOST, REDIS_PORT, RedisConfiguration } from "../model/redis-configuration";
+import { USER_SERVICE_HOST, USER_SERVICE_PORT, UserServiceConfiguration } from "../model/user-service.configuration";
 
 import { LoggerService } from "@infrastructure/logger/services/logger.service";
 
@@ -12,6 +13,7 @@ export class ConfigurationService {
 
   private _appConfig!: AppConfiguration;
   private _redisConfig!: RedisConfiguration;
+  private _userServiceConfig!: UserServiceConfiguration;
 
   public isProd!: boolean;
 
@@ -21,6 +23,10 @@ export class ConfigurationService {
 
   get redisConfig(): RedisConfiguration {
     return this._redisConfig;
+  }
+
+  get userServiceConfig(): UserServiceConfiguration {
+    return this._userServiceConfig;
   }
 
   constructor(private nestConfigService: ConfigService) {
@@ -43,10 +49,15 @@ export class ConfigurationService {
     this.isProd = appEnv.includes("prod");
 
     // REDIS
-    console.log(REDIS_HOST);
     this._redisConfig = {
       host: this.getVariableFromEnvFile(REDIS_HOST),
       port: parseInt(this.getVariableFromEnvFile(REDIS_PORT)),
+    };
+
+    // USER SERVICE
+    this._userServiceConfig = {
+      host: this.getVariableFromEnvFile(USER_SERVICE_HOST),
+      port: parseInt(this.getVariableFromEnvFile(USER_SERVICE_PORT)),
     };
   }
 

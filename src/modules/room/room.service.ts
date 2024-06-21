@@ -11,8 +11,10 @@ export class RoomService {
       messages: [
         {
           id: "1",
-          message: "Hello World!",
-          userId: "1",
+          text: "Hello World!",
+          user: {
+            name: "User 1",
+          },
         },
       ],
     };
@@ -25,8 +27,10 @@ export class RoomService {
       messages: [
         {
           id: "1",
-          message: "Hello World!",
-          userId: "1",
+          text: "Hello World!",
+          user: {
+            name: "User 1",
+          },
         },
       ],
     };
