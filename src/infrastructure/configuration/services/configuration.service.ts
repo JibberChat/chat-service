@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 import { APP_NAME, APP_PORT, APP_VERSION, AppConfiguration, NODE_ENV } from "../model/app-configuration";
+import { NOTIF_SERVICE_QUEUE, NotifServiceConfiguration } from "../model/notif-service.configuration";
 import { REDIS_HOST, REDIS_PORT, RedisConfiguration } from "../model/redis-configuration";
 import { USER_SERVICE_HOST, USER_SERVICE_PORT, UserServiceConfiguration } from "../model/user-service.configuration";
 
@@ -14,6 +15,7 @@ export class ConfigurationService {
   private _appConfig!: AppConfiguration;
   private _redisConfig!: RedisConfiguration;
   private _userServiceConfig!: UserServiceConfiguration;
+  private _notifServiceConfig!: NotifServiceConfiguration;
 
   public isProd!: boolean;
 
@@ -27,6 +29,10 @@ export class ConfigurationService {
 
   get userServiceConfig(): UserServiceConfiguration {
     return this._userServiceConfig;
+  }
+
+  get notifServiceConfig(): NotifServiceConfiguration {
+    return this._notifServiceConfig;
   }
 
   constructor(private nestConfigService: ConfigService) {
@@ -58,6 +64,13 @@ export class ConfigurationService {
     this._userServiceConfig = {
       host: this.getVariableFromEnvFile(USER_SERVICE_HOST),
       port: parseInt(this.getVariableFromEnvFile(USER_SERVICE_PORT)),
+    };
+
+    // NOTIF SERVICE
+    this._notifServiceConfig = {
+      host: this.getVariableFromEnvFile(USER_SERVICE_HOST),
+      port: parseInt(this.getVariableFromEnvFile(USER_SERVICE_PORT)),
+      queue: this.getVariableFromEnvFile(NOTIF_SERVICE_QUEUE),
     };
   }
 

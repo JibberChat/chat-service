@@ -6,6 +6,7 @@ import { Module } from "@nestjs/common";
 import { ClientProxyFactory, ClientsModule, Transport } from "@nestjs/microservices";
 
 import { ConfigurationModule } from "@infrastructure/configuration/configuration.module";
+import { NOTIF_SERVICE } from "@infrastructure/configuration/model/notif-service.configuration";
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { ConfigurationService } from "@infrastructure/configuration/services/configuration.service";
 import { DatabaseModule } from "@infrastructure/database/database.module";
@@ -45,6 +46,25 @@ import { RoomModule } from "@modules/room/room.module";
               options: {
                 host: userServiceOptions.host,
                 port: userServiceOptions.port,
+              },
+            };
+          },
+          inject: [ConfigurationService],
+        },
+      ],
+    }),
+    ClientsModule.registerAsync({
+      isGlobal: true,
+      clients: [
+        {
+          name: NOTIF_SERVICE,
+          useFactory: async (configService: ConfigurationService) => {
+            const notifServiceOptions = configService.notifServiceConfig;
+            return {
+              transport: Transport.MQTT,
+              options: {
+                url: "amqp://" + notifServiceOptions.host + ":" + notifServiceOptions.port,
+                queue: notifServiceOptions.queue,
               },
             };
           },
