@@ -8,7 +8,7 @@ import { LoggerService } from "@infrastructure/logger/services/logger.service";
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new LoggerService();
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     try {
       this.logger.log("Connecting to the database", this.constructor.name);
       await this.$connect();
@@ -18,11 +18,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     await this.$disconnect();
   }
 
-  async enableShutdownHooks(app: INestMicroservice) {
+  async enableShutdownHooks(app: INestMicroservice): Promise<void> {
     process.on("beforeExit", async () => {
       this.logger.log("Disconnecting from the database", this.constructor.name);
       await app.close();

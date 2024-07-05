@@ -1,4 +1,4 @@
-import { Message } from "@modules/chat/chat.interface";
+// import { Message } from "@modules/chat/chat.interface";
 
 export interface Room {
   id: string;

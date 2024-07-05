@@ -5,8 +5,8 @@ import { ConfigurationService } from "./services/configuration.service";
 
 @Global()
 @Module({
-    exports: [ConfigurationService],
-    imports: [ConfigModule.forRoot()],
-    providers: [ConfigurationService],
+  exports: [ConfigurationService],
+  imports: [ConfigModule.forRoot()],
+  providers: [ConfigurationService],
 })
 export class ConfigurationModule {}

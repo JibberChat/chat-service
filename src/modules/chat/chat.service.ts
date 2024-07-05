@@ -34,7 +34,6 @@ export class ChatService {
         id: true,
         text: true,
         userId: true,
-        // createdAt: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -48,12 +47,12 @@ export class ChatService {
     );
 
     const tab = messages.map((message) => {
-      const user = users.find((user) => user.id === message.userId);
+      const userFind = users.find((user) => user.id === message.userId);
       return {
         id: message.id,
         text: message.text,
         user: {
-          name: user.name,
+          name: userFind.name,
         },
       };
     });
@@ -72,6 +71,11 @@ export class ChatService {
         roomId: data.roomId,
       },
     });
+
+    // await this.prismaService.room.update({
+    //   where: { id: data.roomId },
+    //   data: { updatedAt: new Date() },
+    // });
 
     // this.notifService.send({ cmd: "sendNotifications" }, { pushTokens: "", title: "JibberChat", body: "New message" });
 

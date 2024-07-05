@@ -1,26 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
-import { logger } from '../winston.config';
+import { logger } from "../winston.config";
 
 @Injectable()
 export class LoggerService {
-  log(message: string, context?: string) {
+  log(message: string, context: string) {
     logger.info(message, { context });
   }
 
-  error(message: string, trace: string, context?: string) {
+  error(message: string, context: string, trace?: string) {
     logger.error(message, { trace, context });
   }
 
-  warn(message: string, context?: string) {
+  warn(message: string, context: string) {
     logger.warn(message, { context });
   }
 
-  debug(message: string, context?: string) {
+  debug(message: string, context: string) {
     logger.debug(message, { context });
   }
 
-  info(message: string, context?: string) {
+  info(message: string, context: string) {
     logger.info(message, { context });
   }
 }

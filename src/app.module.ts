@@ -3,13 +3,14 @@ import type { RedisClientOptions } from "redis";
 
 import { CacheModule } from "@nestjs/cache-manager";
 import { Module } from "@nestjs/common";
-import { ClientProxyFactory, ClientsModule, Transport } from "@nestjs/microservices";
+import { ClientsModule, Transport } from "@nestjs/microservices";
 
 import { ConfigurationModule } from "@infrastructure/configuration/configuration.module";
 import { NOTIF_SERVICE } from "@infrastructure/configuration/model/notif-service.configuration";
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { ConfigurationService } from "@infrastructure/configuration/services/configuration.service";
 import { DatabaseModule } from "@infrastructure/database/database.module";
+import { LoggerModule } from "@infrastructure/logger/logger.module";
 
 import { ChatModule } from "@modules/chat/chat.module";
 import { RoomModule } from "@modules/room/room.module";
@@ -77,6 +78,7 @@ import { RoomModule } from "@modules/room/room.module";
     ConfigurationModule,
     ChatModule,
     RoomModule,
+    LoggerModule,
   ],
   providers: [],
 })

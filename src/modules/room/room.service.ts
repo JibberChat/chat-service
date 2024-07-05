@@ -46,7 +46,7 @@ export class RoomService {
 
   async getUnreadUserRooms(userId: string): Promise<Room> {
     return {
-      id: "1",
+      id: userId,
       name: "Room 1",
     };
   }

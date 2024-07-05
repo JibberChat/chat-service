@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { red } from "chalk";
 import { Response } from "express";
 import { inspect } from "util";
@@ -36,12 +35,7 @@ export class GlobalExceptionFilter extends BaseExceptionFilter {
   }
 
   returnError(error: Error, response: Response) {
-    this.logger.error(inspect(error), error.stack ?? String(error), "LogError");
-
-    console.log(LOG_PREFIX, {
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: MESSAGES.CONTACT_ADMIN,
-    });
+    this.logger.error(LOG_PREFIX + " " + error.message, this.constructor.name, error.stack ?? String(error));
     response.status(HttpStatus.BAD_REQUEST).json({
       statusCode: HttpStatus.BAD_REQUEST,
       message: MESSAGES.CONTACT_ADMIN,
@@ -56,7 +50,11 @@ export class GlobalExceptionFilter extends BaseExceptionFilter {
       if (exception instanceof HttpException) {
         const statusCode = exception.getStatus();
         const message = getHttpExceptionMessage(exception);
-        console.log(LOG_PREFIX, { statusCode, message });
+        this.logger.error(
+          LOG_PREFIX + " " + JSON.stringify({ statusCode, message }),
+          this.constructor.name,
+          exception.message
+        );
         response.status(statusCode).json({ statusCode, message });
       } else {
         this.returnError(new Error(`Unexpected internal error, ${inspect(exception)}`), response);

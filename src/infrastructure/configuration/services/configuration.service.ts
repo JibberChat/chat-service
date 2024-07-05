@@ -2,7 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 import { APP_NAME, APP_PORT, APP_VERSION, AppConfiguration, NODE_ENV } from "../model/app-configuration";
-import { NOTIF_SERVICE_QUEUE, NotifServiceConfiguration } from "../model/notif-service.configuration";
+import {
+  NOTIF_SERVICE_HOST,
+  NOTIF_SERVICE_PORT,
+  NOTIF_SERVICE_QUEUE,
+  NotifServiceConfiguration,
+} from "../model/notif-service.configuration";
 import { REDIS_HOST, REDIS_PORT, RedisConfiguration } from "../model/redis-configuration";
 import { USER_SERVICE_HOST, USER_SERVICE_PORT, UserServiceConfiguration } from "../model/user-service.configuration";
 
@@ -68,8 +73,8 @@ export class ConfigurationService {
 
     // NOTIF SERVICE
     this._notifServiceConfig = {
-      host: this.getVariableFromEnvFile(USER_SERVICE_HOST),
-      port: parseInt(this.getVariableFromEnvFile(USER_SERVICE_PORT)),
+      host: this.getVariableFromEnvFile(NOTIF_SERVICE_HOST),
+      port: parseInt(this.getVariableFromEnvFile(NOTIF_SERVICE_PORT)),
       queue: this.getVariableFromEnvFile(NOTIF_SERVICE_QUEUE),
     };
   }
