@@ -17,6 +17,12 @@ import { RoomModule } from "@modules/room/room.module";
 
 @Module({
   imports: [
+    ChatModule,
+    RoomModule,
+
+    DatabaseModule,
+    ConfigurationModule,
+    LoggerModule,
     CacheModule.registerAsync<RedisClientOptions>({
       isGlobal: true,
       imports: [ConfigurationModule],
@@ -73,12 +79,6 @@ import { RoomModule } from "@modules/room/room.module";
         },
       ],
     }),
-
-    DatabaseModule,
-    ConfigurationModule,
-    ChatModule,
-    RoomModule,
-    LoggerModule,
   ],
   providers: [],
 })

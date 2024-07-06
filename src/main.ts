@@ -2,7 +2,7 @@ import { ConfigService } from "@nestjs/config";
 import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 
-import { AppModule } from "./app.module";
+import { AppModule } from "./modules/app.module";
 
 import { ConfigurationService } from "@infrastructure/configuration/services/configuration.service";
 import { PrismaService } from "@infrastructure/database/services/prisma.service";
