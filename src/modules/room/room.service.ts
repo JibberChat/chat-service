@@ -1,8 +1,12 @@
+import { firstValueFrom, timeout } from "rxjs";
+
 import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ClientProxy } from "@nestjs/microservices";
 
 import { DeleteOrLeaveRoomResponse, Room } from "./room.interface";
 
+import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { PrismaService } from "@infrastructure/database/services/prisma.service";
 
 import MESSAGES from "@helpers/messages/http-messages";
@@ -12,12 +16,21 @@ import { prismaCatchNotFound } from "@helpers/prisma/catch-not-found";
 export class RoomService {
   constructor(
     private readonly prismaService: PrismaService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(USER_SERVICE) private userService: ClientProxy
   ) {}
 
   async getUserRooms(userId: string): Promise<Room[]> {
     const cachedRooms = await this.cacheManager.get<Room[]>("rooms-" + userId);
     if (cachedRooms) return cachedRooms;
+
+    console.log("Fetching from DB");
+
+    // check if user exists
+    const user = await firstValueFrom(
+      this.userService.send({ cmd: "getUserProfile" }, { id: userId }).pipe(timeout(5000))
+    );
+    if (!user) throw new NotFoundException(MESSAGES.NOT_FOUND);
 
     const rooms = await this.prismaService.room.findMany({
       where: {
@@ -44,11 +57,13 @@ export class RoomService {
     return rooms;
   }
 
-  async getUnreadUserRooms(userId: string): Promise<Room> {
-    return {
-      id: userId,
-      name: "Room 1",
-    };
+  async getUnreadUserRooms(userId: string): Promise<Room[]> {
+    return [
+      {
+        id: userId,
+        name: "Room 1",
+      },
+    ];
   }
 
   async createRoom(data: { name: string; userId: string }): Promise<Room> {
@@ -64,6 +79,7 @@ export class RoomService {
     });
 
     await this.cacheManager.set("room-" + room.id, room);
+    await this.cacheManager.del("rooms-" + data.userId);
 
     return {
       id: room.id,
@@ -71,10 +87,19 @@ export class RoomService {
     };
   }
 
-  async updateRoom(data: { roomId: string; name: string }): Promise<Room> {
+  async updateRoom(data: { id: string; name: string }): Promise<Room> {
+    // check if room exists
+    await this.prismaService.room
+      .findUniqueOrThrow({
+        where: {
+          id: data.id,
+        },
+      })
+      .catch(prismaCatchNotFound(MESSAGES.ROOM_NOT_FOUND));
+
     const room = await this.prismaService.room.update({
       where: {
-        id: data.roomId,
+        id: data.id,
       },
       data: {
         name: data.name,
@@ -93,14 +118,24 @@ export class RoomService {
     };
   }
 
-  async deleteRoom(roomId: string): Promise<DeleteOrLeaveRoomResponse> {
+  async deleteRoom(data: { id: string; userId: string }): Promise<DeleteOrLeaveRoomResponse> {
+    await this.prismaService.room
+      .findUniqueOrThrow({
+        where: {
+          id: data.id,
+          creatorId: data.userId,
+        },
+      })
+      .catch(prismaCatchNotFound(MESSAGES.ROOM_NOT_FOUND));
+
     await this.prismaService.room.delete({
       where: {
-        id: roomId,
+        id: data.id,
       },
     });
 
-    await this.cacheManager.del("room-" + roomId);
+    await this.cacheManager.del("room-" + data.id);
+    await this.cacheManager.del("rooms-" + data.userId);
 
     return {
       success: true,
@@ -108,11 +143,11 @@ export class RoomService {
     };
   }
 
-  async leaveRoom(data: { roomId: string; userId: string }): Promise<DeleteOrLeaveRoomResponse> {
+  async leaveRoom(data: { id: string; userId: string }): Promise<DeleteOrLeaveRoomResponse> {
     const room = await this.prismaService.room
       .findUniqueOrThrow({
         where: {
-          id: data.roomId,
+          id: data.id,
         },
         select: {
           creatorId: true,
@@ -133,27 +168,28 @@ export class RoomService {
       if (room.members.length > 0) {
         await this.prismaService.room.update({
           where: {
-            id: data.roomId,
+            id: data.id,
           },
           data: {
             creatorId: room.members[0].userId,
           },
         });
       } else {
-        return await this.deleteRoom(data.roomId);
+        return await this.deleteRoom(data);
       }
     } else {
       await this.prismaService.userRoom.delete({
         where: {
           userId_roomId: {
             userId: data.userId,
-            roomId: data.roomId,
+            roomId: data.id,
           },
         },
       });
     }
 
-    await this.cacheManager.del("room-" + data.roomId);
+    await this.cacheManager.del("room-" + data.id);
+    await this.cacheManager.del("rooms-" + data.userId);
 
     return {
       success: true,

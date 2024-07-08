@@ -9,13 +9,13 @@ export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
   @MessagePattern({ cmd: "getUserRooms" })
-  async getUserRooms(userId: string): Promise<Room[]> {
-    return await this.roomService.getUserRooms(userId);
+  async getUserRooms(data: { userId: string }): Promise<Room[]> {
+    return await this.roomService.getUserRooms(data.userId);
   }
 
   @MessagePattern({ cmd: "getUnreadUserRooms" })
-  async getUnreadUserRooms(userId: string): Promise<Room> {
-    return await this.roomService.getUnreadUserRooms(userId);
+  async getUnreadUserRooms(data: { userId: string }): Promise<Room[]> {
+    return await this.roomService.getUnreadUserRooms(data.userId);
   }
 
   @MessagePattern({ cmd: "createRoom" })
@@ -24,17 +24,17 @@ export class RoomController {
   }
 
   @MessagePattern({ cmd: "updateRoom" })
-  async updateRoom(data: { roomId: string; name: string }): Promise<Room> {
+  async updateRoom(data: { id: string; name: string }): Promise<Room> {
     return await this.roomService.updateRoom(data);
   }
 
   @MessagePattern({ cmd: "deleteRoom" })
-  async deleteRoom(roomId: string): Promise<DeleteOrLeaveRoomResponse> {
-    return await this.roomService.deleteRoom(roomId);
+  async deleteRoom(data: { id: string; userId: string }): Promise<DeleteOrLeaveRoomResponse> {
+    return await this.roomService.deleteRoom(data);
   }
 
   @MessagePattern({ cmd: "leaveRoom" })
-  async leaveRoom(data: { roomId: string; userId: string }): Promise<DeleteOrLeaveRoomResponse> {
+  async leaveRoom(data: { id: string; userId: string }): Promise<DeleteOrLeaveRoomResponse> {
     return await this.roomService.leaveRoom(data);
   }
 }

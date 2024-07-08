@@ -1,9 +1,9 @@
 import { red } from "chalk";
-import { Response } from "express";
+import { Observable, throwError } from "rxjs";
 import { inspect } from "util";
 
-import { ArgumentsHost, Catch, HttpException, HttpServer, HttpStatus } from "@nestjs/common";
-import { BaseExceptionFilter } from "@nestjs/core";
+import { ArgumentsHost, Catch, HttpException, HttpStatus } from "@nestjs/common";
+import { BaseRpcExceptionFilter, RpcException } from "@nestjs/microservices";
 
 import { LoggerService } from "@infrastructure/logger/services/logger.service";
 
@@ -26,25 +26,27 @@ function getHttpExceptionMessage(exception: HttpException): string {
 }
 
 @Catch()
-export class GlobalExceptionFilter extends BaseExceptionFilter {
+export class GlobalExceptionFilter extends BaseRpcExceptionFilter {
   private readonly logger: LoggerService;
 
-  constructor(httpAdapter: HttpServer, logger: LoggerService) {
-    super(httpAdapter);
+  constructor(logger: LoggerService) {
+    super();
     this.logger = logger;
   }
 
-  returnError(error: Error, response: Response) {
+  returnError(error: Error): Observable<never> {
     this.logger.error(LOG_PREFIX + " " + error.message, this.constructor.name, error.stack ?? String(error));
-    response.status(HttpStatus.BAD_REQUEST).json({
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: MESSAGES.CONTACT_ADMIN,
-    });
+    return throwError(
+      () =>
+        new RpcException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: MESSAGES.CONTACT_ADMIN,
+        })
+    );
   }
 
-  catch(exception: unknown, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
+  catch(exception: unknown, host: ArgumentsHost): Observable<void> {
+    // const ctx = host.switchToRpc();
 
     if (exception instanceof Error) {
       if (exception instanceof HttpException) {
@@ -55,13 +57,13 @@ export class GlobalExceptionFilter extends BaseExceptionFilter {
           this.constructor.name,
           exception.message
         );
-        response.status(statusCode).json({ statusCode, message });
+        return throwError(() => new RpcException({ statusCode, message }));
       } else {
-        this.returnError(new Error(`Unexpected internal error, ${inspect(exception)}`), response);
+        return this.returnError(new Error(`Unexpected internal error, ${inspect(exception)}`));
       }
     } else {
       // This should never happen: it means that the exception itself is not a JS error; we rethrow it as an unexcepted error type
-      this.returnError(new Error(`Unexpected error type, ${inspect(exception)}`), response);
+      return this.returnError(new Error(`Unexpected error type, ${inspect(exception)}`));
     }
   }
 }

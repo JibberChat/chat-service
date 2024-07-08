@@ -9,20 +9,20 @@ import { LoggerService } from "./services/logger.service";
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
-  private readonly loggerSerivce = new LoggerService();
+  constructor(private readonly loggerService: LoggerService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<void> {
     const now = Date.now();
     const req = context.switchToRpc().getContext<TcpContext>();
     const method = req.getPattern();
-    const args = req.getArgs();
+    const socketAddress = req.getSocketRef().socket.remoteAddress;
 
-    this.loggerSerivce.info(yellow("Request") + JSON.stringify({ method, args }), this.constructor.name);
+    this.loggerService.info(yellow("Request ") + JSON.stringify({ method, socketAddress }), this.constructor.name);
 
     return next.handle().pipe(
       tap((data) => {
-        this.loggerSerivce.info(
-          green("Response") + JSON.stringify({ duration: Date.now() - now, data }),
+        this.loggerService.log(
+          green("Response ") + JSON.stringify({ duration: Date.now() - now, data }),
           this.constructor.name
         );
       })
