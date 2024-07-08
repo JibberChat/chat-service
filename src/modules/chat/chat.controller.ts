@@ -14,7 +14,7 @@ export class ChatController {
   }
 
   @MessagePattern({ cmd: "sendMessageToRoom" })
-  async sendMessageToRoom(data: { roomId: string; message: string }): Promise<string> {
+  async sendMessageToRoom(data: { roomId: string; message: string }): Promise<Message> {
     return await this.chatService.sendMessageToRoom(data);
   }
 }

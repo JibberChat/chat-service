@@ -61,24 +61,25 @@ export class ChatService {
     return tab;
   }
 
-  async sendMessageToRoom(data: { roomId: string; message: string }): Promise<string> {
+  async sendMessageToRoom(data: { roomId: string; message: string }): Promise<Message> {
     await this.cacheManager.del("messages-" + data.roomId);
 
-    await this.prismaService.message.create({
+    const messageRegister = await this.prismaService.message.create({
       data: {
         text: data.message,
-        userId: "1",
         roomId: data.roomId,
+        userId: "1",
       },
     });
 
-    // await this.prismaService.room.update({
-    //   where: { id: data.roomId },
-    //   data: { updatedAt: new Date() },
-    // });
-
     // this.notifService.send({ cmd: "sendNotifications" }, { pushTokens: "", title: "JibberChat", body: "New message" });
 
-    return "Message sent successfully";
+    return {
+      id: messageRegister.id,
+      text: messageRegister.text,
+      user: {
+        name: "1",
+      },
+    };
   }
 }
