@@ -16,17 +16,14 @@ import { prismaCatchNotFound } from "@helpers/prisma/catch-not-found";
 export class RoomService {
   constructor(
     private readonly prismaService: PrismaService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    // @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @Inject(USER_SERVICE) private userService: ClientProxy
   ) {}
 
   async getUserRooms(userId: string): Promise<Room[]> {
-    const cachedRooms = await this.cacheManager.get<Room[]>("rooms-" + userId);
-    if (cachedRooms) return cachedRooms;
+    // const cachedRooms = await this.cacheManager.get<Room[]>("rooms-" + userId);
+    // if (cachedRooms) return cachedRooms;
 
-    console.log("Fetching from DB");
-
-    // check if user exists
     const user = await firstValueFrom(
       this.userService.send({ cmd: "getUserProfile" }, { id: userId }).pipe(timeout(5000))
     );
@@ -53,7 +50,7 @@ export class RoomService {
       },
     });
 
-    await this.cacheManager.set("rooms-" + userId, rooms);
+    // await this.cacheManager.set("rooms-" + userId, rooms);
     return rooms;
   }
 
@@ -78,8 +75,8 @@ export class RoomService {
       },
     });
 
-    await this.cacheManager.set("room-" + room.id, room);
-    await this.cacheManager.del("rooms-" + data.userId);
+    // await this.cacheManager.set("room-" + room.id, room);
+    // await this.cacheManager.del("rooms-" + data.userId);
 
     return {
       id: room.id,
@@ -88,7 +85,6 @@ export class RoomService {
   }
 
   async updateRoom(data: { id: string; name: string }): Promise<Room> {
-    // check if room exists
     await this.prismaService.room
       .findUniqueOrThrow({
         where: {
@@ -110,7 +106,7 @@ export class RoomService {
       },
     });
 
-    await this.cacheManager.set("room-" + room.id, room);
+    // await this.cacheManager.set("room-" + room.id, room);
 
     return {
       id: room.id,
@@ -134,8 +130,8 @@ export class RoomService {
       },
     });
 
-    await this.cacheManager.del("room-" + data.id);
-    await this.cacheManager.del("rooms-" + data.userId);
+    // await this.cacheManager.del("room-" + data.id);
+    // await this.cacheManager.del("rooms-" + data.userId);
 
     return {
       success: true,
@@ -188,8 +184,8 @@ export class RoomService {
       });
     }
 
-    await this.cacheManager.del("room-" + data.id);
-    await this.cacheManager.del("rooms-" + data.userId);
+    // await this.cacheManager.del("room-" + data.id);
+    // await this.cacheManager.del("rooms-" + data.userId);
 
     return {
       success: true,
