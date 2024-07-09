@@ -1,5 +1,5 @@
 import { ConfigService } from "@nestjs/config";
-import { HttpAdapterHost, NestFactory } from "@nestjs/core";
+import { NestFactory } from "@nestjs/core";
 import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 
 import { AppModule } from "./modules/app.module";
@@ -26,7 +26,7 @@ async function bootstrap() {
   dbService.enableShutdownHooks(app);
 
   // Logger
-  const { httpAdapter } = app.get(HttpAdapterHost);
+  // const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new GlobalExceptionFilter(loggerService));
   app.useGlobalInterceptors(new LoggerInterceptor(loggerService));
 
