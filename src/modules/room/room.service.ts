@@ -24,9 +24,7 @@ export class RoomService {
     // const cachedRooms = await this.cacheManager.get<Room[]>("rooms-" + userId);
     // if (cachedRooms) return cachedRooms;
 
-    const user = await firstValueFrom(
-      this.userService.send({ cmd: "getUserProfile" }, { id: userId }).pipe(timeout(5000))
-    );
+    const user = await firstValueFrom(this.userService.send({ cmd: "getUserProfile" }, { userId }).pipe(timeout(5000)));
     if (!user) throw new NotFoundException(MESSAGES.NOT_FOUND);
 
     const rooms = await this.prismaService.room.findMany({
