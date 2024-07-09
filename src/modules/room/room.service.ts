@@ -146,6 +146,7 @@ export class RoomService {
           id: data.id,
         },
         select: {
+          id: true,
           creatorId: true,
           members: {
             select: {
@@ -164,21 +165,21 @@ export class RoomService {
       if (room.members.length > 0) {
         await this.prismaService.room.update({
           where: {
-            id: data.id,
+            id: room.id,
           },
           data: {
             creatorId: room.members[0].userId,
           },
         });
       } else {
-        return await this.deleteRoom(data);
+        return await this.deleteRoom({ id: room.id, userId: data.userId });
       }
     } else {
       await this.prismaService.userRoom.delete({
         where: {
           userId_roomId: {
             userId: data.userId,
-            roomId: data.id,
+            roomId: room.id,
           },
         },
       });

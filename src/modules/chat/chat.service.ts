@@ -23,8 +23,8 @@ export class ChatService {
   ) {}
 
   async getRoomMessages(roomId: string): Promise<Message[]> {
-    const cachedMessages = await this.cacheManager.get<Message[]>("messages-" + roomId);
-    if (cachedMessages) return cachedMessages;
+    // const cachedMessages = await this.cacheManager.get<Message[]>("messages-" + roomId);
+    // if (cachedMessages) return cachedMessages;
 
     const messages = await this.prismaService.message.findMany({
       where: {
@@ -33,6 +33,7 @@ export class ChatService {
       select: {
         id: true,
         text: true,
+        createdAt: true,
         userId: true,
       },
       orderBy: {
@@ -51,6 +52,7 @@ export class ChatService {
       return {
         id: message.id,
         text: message.text,
+        createdAt: message.createdAt,
         user: {
           name: userFind.name,
         },
@@ -77,6 +79,7 @@ export class ChatService {
     return {
       id: messageRegister.id,
       text: messageRegister.text,
+      createdAt: messageRegister.createdAt,
       user: {
         name: "1",
       },
