@@ -17,7 +17,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t chat-service .
   test:
-    name: Test
+    name: test
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -38,7 +38,7 @@ jobs:
         run: pnpm run test
 
   lint:
-    name: Lint
+    name: lint
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -59,7 +59,7 @@ jobs:
         run: pnpm run lint
 
   typecheck:
-    name: Typecheck
+    name: typecheck
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
