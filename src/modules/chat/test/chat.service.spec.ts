@@ -66,7 +66,9 @@ describe("ChatService", () => {
   describe("getRoomMessages", () => {
     it("should return cached messages if available", async () => {
       const roomId = "1";
-      const cachedMessages: Message[] = [{ id: "1", text: "Hello", createdAt: new Date(), user: { name: "User1" } }];
+      const cachedMessages: Message[] = [
+        { id: "1", text: "Hello", createdAt: new Date(), user: { id: "1", name: "User1" } },
+      ];
       jest.spyOn(cacheManager, "get").mockResolvedValue(cachedMessages);
 
       const result = await chatService.getRoomMessages(roomId);
@@ -93,8 +95,8 @@ describe("ChatService", () => {
       const result = await chatService.getRoomMessages(roomId);
 
       expect(result).toEqual([
-        { id: "1", text: "Hello", createdAt: now, user: { name: "User1" } },
-        { id: "2", text: "Hi", createdAt: now, user: { name: "User2" } },
+        { id: "1", text: "Hello", createdAt: now, user: { id: "1", name: "User1" } },
+        { id: "2", text: "Hi", createdAt: now, user: { id: "2", name: "User2" } },
       ]);
       expect(cacheManager.set).toHaveBeenCalledWith("messages-" + roomId, result);
     });
@@ -112,12 +114,15 @@ describe("ChatService", () => {
         createdAt: now,
         updatedAt: now,
       };
+
+      const user = { id: "1", name: "User1" };
       jest.spyOn(cacheManager, "del").mockResolvedValue(null);
       jest.spyOn(prismaService.message, "create").mockResolvedValue(createdMessage);
+      jest.spyOn(userService, "send").mockReturnValue(of(user));
 
       const result = await chatService.sendMessageToRoom(data);
 
-      expect(result).toEqual({ id: "1", text: "New Message", createdAt: now, user: { name: "1" } });
+      expect(result).toEqual({ id: "1", text: "New Message", createdAt: now, user: { id: "1", name: "User1" } });
       expect(cacheManager.del).toHaveBeenCalledWith("messages-" + data.roomId);
       expect(prismaService.message.create).toHaveBeenCalledWith({
         data: {

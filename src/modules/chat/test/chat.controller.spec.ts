@@ -32,8 +32,8 @@ describe("ChatController", () => {
     it("should return messages for the given room", async () => {
       const roomId = "1";
       const messages: Message[] = [
-        { id: "1", text: "Hello", createdAt: now, user: { name: "User1" } },
-        { id: "2", text: "Hi", createdAt: now, user: { name: "User2" } },
+        { id: "1", text: "Hello", createdAt: now, user: { id: "1", name: "User1" } },
+        { id: "2", text: "Hi", createdAt: now, user: { id: "1", name: "User2" } },
       ];
       jest.spyOn(chatService, "getRoomMessages").mockResolvedValue(messages);
 
@@ -47,7 +47,7 @@ describe("ChatController", () => {
   describe("sendMessageToRoom", () => {
     it("should send a message to the given room and return the message", async () => {
       const data: SendMessageDto = { roomId: "1", message: "New Message", userId: "1" };
-      const newMessage: Message = { id: "1", text: "New Message", createdAt: now, user: { name: "User1" } };
+      const newMessage: Message = { id: "1", text: "New Message", createdAt: now, user: { id: "1", name: "User1" } };
       jest.spyOn(chatService, "sendMessageToRoom").mockResolvedValue(newMessage);
 
       const result = await chatController.sendMessageToRoom(data);
