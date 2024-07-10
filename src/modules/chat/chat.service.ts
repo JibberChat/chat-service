@@ -23,8 +23,8 @@ export class ChatService {
   ) {}
 
   async getRoomMessages(roomId: string): Promise<Message[]> {
-    // const cachedMessages = await this.cacheManager.get<Message[]>("messages-" + roomId);
-    // if (cachedMessages) return cachedMessages;
+    const cachedMessages = await this.cacheManager.get<Message[]>("messages-" + roomId);
+    if (cachedMessages) return cachedMessages;
 
     const messages = await this.prismaService.message.findMany({
       where: {
@@ -63,14 +63,14 @@ export class ChatService {
     return tab;
   }
 
-  async sendMessageToRoom(data: { roomId: string; message: string }): Promise<Message> {
+  async sendMessageToRoom(data: { roomId: string; message: string; userId: string }): Promise<Message> {
     await this.cacheManager.del("messages-" + data.roomId);
 
     const messageRegister = await this.prismaService.message.create({
       data: {
         text: data.message,
         roomId: data.roomId,
-        userId: "1",
+        userId: data.userId,
       },
     });
 
