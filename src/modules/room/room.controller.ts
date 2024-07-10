@@ -5,6 +5,7 @@ import { CreateRoomDto } from "./dtos/create-room.dto";
 import { DeleteRoomDto } from "./dtos/delete-room.dto";
 import { GetUnreadUserRoomsDto } from "./dtos/get-unread-user-rooms.dto";
 import { GetUserRoomsDto } from "./dtos/get-user-rooms.dto";
+import { InviteUserRoomDto } from "./dtos/invite-user-room.dto";
 import { LeaveRoomDto } from "./dtos/leave-room.dto";
 import { UpdateRoomDto } from "./dtos/update-room.dto";
 import { DeleteOrLeaveRoomResponse, Room } from "./interfaces/room.interface";
@@ -22,6 +23,11 @@ export class RoomController {
   @MessagePattern({ cmd: "getUnreadUserRooms" })
   async getUnreadUserRooms(data: GetUnreadUserRoomsDto): Promise<Room[]> {
     return await this.roomService.getUnreadUserRooms(data.userId);
+  }
+
+  @MessagePattern({ cmd: "inviteUserToRoom" })
+  async inviteUserToRoom(data: InviteUserRoomDto): Promise<{ success: boolean }> {
+    return await this.roomService.inviteUserToRoom(data);
   }
 
   @MessagePattern({ cmd: "createRoom" })

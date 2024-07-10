@@ -6,12 +6,15 @@ import { ClientProxy } from "@nestjs/microservices";
 
 import { CreateRoomDto } from "./dtos/create-room.dto";
 import { DeleteRoomDto } from "./dtos/delete-room.dto";
+import { InviteUserRoomDto } from "./dtos/invite-user-room.dto";
 import { LeaveRoomDto } from "./dtos/leave-room.dto";
 import { UpdateRoomDto } from "./dtos/update-room.dto";
 import { DeleteOrLeaveRoomResponse, Room } from "./interfaces/room.interface";
 
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { PrismaService } from "@infrastructure/database/services/prisma.service";
+
+import { User } from "@entities/user.entity";
 
 import MESSAGES from "@helpers/messages/http-messages";
 import { prismaCatchNotFound } from "@helpers/prisma/catch-not-found";
@@ -63,6 +66,24 @@ export class RoomService {
         name: "Room 1",
       },
     ];
+  }
+
+  async inviteUserToRoom(data: InviteUserRoomDto): Promise<{ success: boolean }> {
+    const user: User | undefined = await firstValueFrom(
+      this.userService.send({ cmd: "getUserByEmail" }, { userEmail: data.userEmail }).pipe(timeout(5000))
+    );
+    if (!user) throw new NotFoundException(MESSAGES.NOT_FOUND);
+
+    await this.prismaService.userRoom.create({
+      data: {
+        userId: user.id,
+        roomId: data.roomId,
+      },
+    });
+
+    // await this.cacheManager.del("rooms-" + user.id);
+
+    return { success: true };
   }
 
   async createRoom(data: CreateRoomDto): Promise<Room> {
