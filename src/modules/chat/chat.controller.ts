@@ -3,6 +3,7 @@ import { MessagePattern } from "@nestjs/microservices";
 
 import { Message } from "./chat.interface";
 import { ChatService } from "./chat.service";
+import { SendMessageDto } from "./dtos/send-message.dto";
 
 @Controller()
 export class ChatController {
@@ -14,7 +15,7 @@ export class ChatController {
   }
 
   @MessagePattern({ cmd: "sendMessageToRoom" })
-  async sendMessageToRoom(data: { roomId: string; message: string; userId: string }): Promise<Message> {
+  async sendMessageToRoom(data: SendMessageDto): Promise<Message> {
     return await this.chatService.sendMessageToRoom(data);
   }
 }

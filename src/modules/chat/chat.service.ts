@@ -6,6 +6,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 
 import { Message } from "./chat.interface";
+import { SendMessageDto } from "./dtos/send-message.dto";
 
 import { NOTIF_SERVICE } from "@infrastructure/configuration/model/notif-service.configuration";
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
@@ -63,7 +64,7 @@ export class ChatService {
     return tab;
   }
 
-  async sendMessageToRoom(data: { roomId: string; message: string; userId: string }): Promise<Message> {
+  async sendMessageToRoom(data: SendMessageDto): Promise<Message> {
     await this.cacheManager.del("messages-" + data.roomId);
 
     const messageRegister = await this.prismaService.message.create({
