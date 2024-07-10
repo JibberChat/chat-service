@@ -5,8 +5,9 @@ import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 
-import { Message } from "./chat.interface";
+import { GetMessagesDto } from "./dtos/get-messages.dto";
 import { SendMessageDto } from "./dtos/send-message.dto";
+import { Message } from "./interfaces/chat.interface";
 
 import { NOTIF_SERVICE } from "@infrastructure/configuration/model/notif-service.configuration";
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
@@ -23,7 +24,7 @@ export class ChatService {
     @Inject(NOTIF_SERVICE) private notifService: ClientProxy
   ) {}
 
-  async getRoomMessages(roomId: string): Promise<Message[]> {
+  async getRoomMessages(roomId: GetMessagesDto["roomId"]): Promise<Message[]> {
     const cachedMessages = await this.cacheManager.get<Message[]>("messages-" + roomId);
     if (cachedMessages) return cachedMessages;
 

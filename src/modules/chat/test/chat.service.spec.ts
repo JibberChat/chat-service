@@ -5,9 +5,9 @@ import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { ClientProxy } from "@nestjs/microservices";
 import { Test, TestingModule } from "@nestjs/testing";
 
-import { Message } from "../chat.interface";
 import { ChatService } from "../chat.service";
 import { SendMessageDto } from "../dtos/send-message.dto";
+import { Message } from "../interfaces/chat.interface";
 
 import { NOTIF_SERVICE } from "@infrastructure/configuration/model/notif-service.configuration";
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";

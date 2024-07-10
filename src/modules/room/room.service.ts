@@ -4,7 +4,11 @@ import { firstValueFrom, timeout } from "rxjs";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 
-import { DeleteOrLeaveRoomResponse, Room } from "./room.interface";
+import { CreateRoomDto } from "./dtos/create-room.dto";
+import { DeleteRoomDto } from "./dtos/delete-room.dto";
+import { LeaveRoomDto } from "./dtos/leave-room.dto";
+import { UpdateRoomDto } from "./dtos/update-room.dto";
+import { DeleteOrLeaveRoomResponse, Room } from "./interfaces/room.interface";
 
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { PrismaService } from "@infrastructure/database/services/prisma.service";
@@ -61,7 +65,7 @@ export class RoomService {
     ];
   }
 
-  async createRoom(data: { name: string; userId: string }): Promise<Room> {
+  async createRoom(data: CreateRoomDto): Promise<Room> {
     const room = await this.prismaService.room.create({
       data: {
         name: data.name,
@@ -82,18 +86,18 @@ export class RoomService {
     };
   }
 
-  async updateRoom(data: { id: string; name: string }): Promise<Room> {
+  async updateRoom(data: UpdateRoomDto): Promise<Room> {
     await this.prismaService.room
       .findUniqueOrThrow({
         where: {
-          id: data.id,
+          id: data.roomId,
         },
       })
       .catch(prismaCatchNotFound(MESSAGES.ROOM_NOT_FOUND));
 
     const room = await this.prismaService.room.update({
       where: {
-        id: data.id,
+        id: data.roomId,
       },
       data: {
         name: data.name,
@@ -112,11 +116,11 @@ export class RoomService {
     };
   }
 
-  async deleteRoom(data: { id: string; userId: string }): Promise<DeleteOrLeaveRoomResponse> {
+  async deleteRoom(data: DeleteRoomDto): Promise<DeleteOrLeaveRoomResponse> {
     await this.prismaService.room
       .findUniqueOrThrow({
         where: {
-          id: data.id,
+          id: data.roomId,
           creatorId: data.userId,
         },
       })
@@ -124,7 +128,7 @@ export class RoomService {
 
     await this.prismaService.room.delete({
       where: {
-        id: data.id,
+        id: data.roomId,
       },
     });
 
@@ -137,11 +141,11 @@ export class RoomService {
     };
   }
 
-  async leaveRoom(data: { id: string; userId: string }): Promise<DeleteOrLeaveRoomResponse> {
+  async leaveRoom(data: LeaveRoomDto): Promise<DeleteOrLeaveRoomResponse> {
     const room = await this.prismaService.room
       .findUniqueOrThrow({
         where: {
-          id: data.id,
+          id: data.roomId,
         },
         select: {
           id: true,
@@ -170,7 +174,7 @@ export class RoomService {
           },
         });
       } else {
-        return await this.deleteRoom({ id: room.id, userId: data.userId });
+        return await this.deleteRoom({ roomId: room.id, userId: data.userId });
       }
     } else {
       await this.prismaService.userRoom.delete({
