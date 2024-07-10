@@ -17,7 +17,7 @@ describe("ChatService", () => {
   let chatService: ChatService;
   let cacheManager: Cache;
   let userService: ClientProxy;
-  let notifService: ClientProxy;
+  // let notifService: ClientProxy;
   let prismaService: PrismaService;
 
   beforeEach(async () => {
@@ -59,7 +59,7 @@ describe("ChatService", () => {
     chatService = module.get<ChatService>(ChatService);
     cacheManager = module.get<Cache>(CACHE_MANAGER);
     userService = module.get<ClientProxy>(USER_SERVICE);
-    notifService = module.get<ClientProxy>(NOTIF_SERVICE);
+    // notifService = module.get<ClientProxy>(NOTIF_SERVICE);
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
