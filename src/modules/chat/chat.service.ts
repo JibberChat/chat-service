@@ -2,7 +2,7 @@ import { Cache } from "cache-manager";
 import { firstValueFrom, timeout } from "rxjs";
 
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 
 import { GetMessagesDto } from "./dtos/get-messages.dto";
@@ -14,6 +14,8 @@ import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.c
 import { PrismaService } from "@infrastructure/database/services/prisma.service";
 
 import { User } from "@entities/user.entity";
+
+import MESSAGES from "@helpers/messages/http-messages";
 
 @Injectable()
 export class ChatService {
@@ -67,6 +69,11 @@ export class ChatService {
   }
 
   async sendMessageToRoom(data: SendMessageDto): Promise<Message> {
+    const user = await firstValueFrom(
+      this.userService.send({ cmd: "getMe" }, { userId: data.userId }).pipe(timeout(5000))
+    );
+    if (!user) throw new NotFoundException(MESSAGES.NOT_FOUND);
+
     await this.cacheManager.del("messages-" + data.roomId);
 
     const messageRegister = await this.prismaService.message.create({
@@ -85,7 +92,7 @@ export class ChatService {
       createdAt: messageRegister.createdAt,
       user: {
         id: data.userId,
-        name: "1", // TODO
+        name: user.name,
       },
     };
   }

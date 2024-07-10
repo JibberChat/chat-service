@@ -194,6 +194,14 @@ export class RoomService {
             creatorId: room.members[0].userId,
           },
         });
+        await this.prismaService.userRoom.delete({
+          where: {
+            userId_roomId: {
+              userId: room.members[0].userId,
+              roomId: room.id,
+            },
+          },
+        });
       } else {
         return await this.deleteRoom({ roomId: room.id, userId: data.userId });
       }
