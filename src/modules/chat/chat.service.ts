@@ -56,6 +56,7 @@ export class ChatService {
         text: message.text,
         createdAt: message.createdAt,
         user: {
+          id: userFind.id,
           name: userFind.name,
         },
       };
@@ -83,7 +84,8 @@ export class ChatService {
       text: messageRegister.text,
       createdAt: messageRegister.createdAt,
       user: {
-        name: "1",
+        id: data.userId,
+        name: "1", // TODO
       },
     };
   }

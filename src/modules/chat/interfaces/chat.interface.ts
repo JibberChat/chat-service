@@ -3,6 +3,7 @@ export interface Message {
   text: string;
   createdAt: Date;
   user: {
+    id: string;
     name: string;
   };
 }
