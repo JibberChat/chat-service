@@ -35,8 +35,9 @@ export class GlobalExceptionFilter extends BaseRpcExceptionFilter {
   }
 
   returnError(error: Error) {
+    const match = /^.*$/m.exec(error.message);
     this.logger.error(
-      LOG_PREFIX + " " + error.message.match(/^.*$/m)?.[0] ?? error.message,
+      LOG_PREFIX + " " + (match ? match[0] : error.message),
       this.constructor.name,
       error.stack ?? "No stack trace"
     );
