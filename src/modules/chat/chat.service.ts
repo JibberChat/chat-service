@@ -33,6 +33,7 @@ export class ChatService {
       select: {
         id: true,
         text: true,
+        createdAt: true,
         userId: true,
       },
       orderBy: {
@@ -51,6 +52,7 @@ export class ChatService {
       return {
         id: message.id,
         text: message.text,
+        createdAt: message.createdAt,
         user: {
           name: userFind.name,
         },
@@ -61,14 +63,14 @@ export class ChatService {
     return tab;
   }
 
-  async sendMessageToRoom(data: { roomId: string; message: string }): Promise<Message> {
+  async sendMessageToRoom(data: { roomId: string; message: string; userId: string }): Promise<Message> {
     await this.cacheManager.del("messages-" + data.roomId);
 
     const messageRegister = await this.prismaService.message.create({
       data: {
         text: data.message,
         roomId: data.roomId,
-        userId: "1",
+        userId: data.userId,
       },
     });
 
@@ -77,6 +79,7 @@ export class ChatService {
     return {
       id: messageRegister.id,
       text: messageRegister.text,
+      createdAt: messageRegister.createdAt,
       user: {
         name: "1",
       },

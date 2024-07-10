@@ -34,20 +34,19 @@ export class GlobalExceptionFilter extends BaseRpcExceptionFilter {
     this.logger = logger;
   }
 
-  returnError(error: Error): Observable<never> {
-    this.logger.error(LOG_PREFIX + " " + error.message, this.constructor.name, error.stack ?? String(error));
-    return throwError(
-      () =>
-        new RpcException({
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: MESSAGES.CONTACT_ADMIN,
-        })
+  returnError(error: Error) {
+    this.logger.error(
+      LOG_PREFIX + " " + error.message.match(/^.*$/m)?.[0] ?? error.message,
+      this.constructor.name,
+      error.stack ?? "No stack trace"
     );
+    throw new RpcException({
+      statusCode: HttpStatus.BAD_REQUEST,
+      message: MESSAGES.CONTACT_ADMIN,
+    });
   }
 
   catch(exception: unknown): Observable<void> {
-    // const ctx = host.switchToRpc();
-
     if (exception instanceof Error) {
       if (exception instanceof HttpException) {
         const statusCode = exception.getStatus();
@@ -59,11 +58,20 @@ export class GlobalExceptionFilter extends BaseRpcExceptionFilter {
         );
         return throwError(() => new RpcException({ statusCode, message }));
       } else {
-        return this.returnError(new Error(`Unexpected internal error, ${inspect(exception)}`));
+        this.returnError(new Error(`Unexpected internal error, ${inspect(exception)}`));
       }
+    } else if (exception instanceof Object) {
+      const { message, error } = exception as { message?: string; error: { message: string; statusCode: number } };
+      const errMsg = message ?? MESSAGES.CONTACT_ADMIN;
+      const errStatusCode = error.statusCode ?? 500;
+      this.logger.error(
+        LOG_PREFIX + " " + JSON.stringify({ statusCode: errStatusCode, message: errMsg }),
+        this.constructor.name
+      );
+      throw new RpcException({ statusCode: errStatusCode, message: errMsg });
     } else {
       // This should never happen: it means that the exception itself is not a JS error; we rethrow it as an unexcepted error type
-      return this.returnError(new Error(`Unexpected error type, ${inspect(exception)}`));
+      this.returnError(new Error(`Unexpected error type, ${inspect(exception)}`));
     }
   }
 }
