@@ -11,26 +11,30 @@ import { LoggerInterceptor } from "@infrastructure/logger/logger.interceptor";
 import { LoggerService } from "@infrastructure/logger/services/logger.service";
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  const app = await NestFactory.create(AppModule);
+
+  const microserviceTcp = app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: {
       host: "localhost",
-      port: new ConfigurationService(new ConfigService()).appConfig.port,
+      port: new ConfigurationService(new ConfigService()).appConfig.servicePort,
     },
   });
+
   const configService = app.get(ConfigurationService);
   const loggerService = app.get(LoggerService);
 
   // Prisma
   const dbService: PrismaService = app.get(PrismaService);
-  dbService.enableShutdownHooks(app);
+  dbService.enableShutdownHooks(microserviceTcp);
 
   // Logger
-  // const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new GlobalExceptionFilter(loggerService));
   app.useGlobalInterceptors(new LoggerInterceptor(loggerService));
 
-  await app.listen();
-  loggerService.info("Microservice is running on port: " + configService.appConfig.port, "Bootstrap");
+  await app.startAllMicroservices();
+  await app.listen(configService.appConfig.httpPort);
+  loggerService.info("Microservice is running on port: " + configService.appConfig.servicePort, "Bootstrap");
+  loggerService.info("HTTP is running on port: " + configService.appConfig.httpPort, "Bootstrap");
 }
 bootstrap();

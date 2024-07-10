@@ -12,12 +12,24 @@ export class LoggerInterceptor implements NestInterceptor {
   constructor(private readonly loggerService: LoggerService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<void> {
+    const contextType = context.getType();
     const now = Date.now();
-    const req = context.switchToRpc().getContext<TcpContext>();
-    const method = req.getPattern();
-    const socketAddress = req.getSocketRef().socket.remoteAddress;
 
-    this.loggerService.info(yellow("Request ") + JSON.stringify({ method, socketAddress }), this.constructor.name);
+    if (contextType === "http") {
+      const req = context.switchToHttp().getRequest();
+      const { url, method, params, query, body } = req;
+
+      this.loggerService.info(
+        yellow("Request ") + JSON.stringify({ url, method, params, query, body }),
+        this.constructor.name
+      );
+    } else if (contextType === "rpc") {
+      const req = context.switchToRpc().getContext<TcpContext>();
+      const method = req.getPattern();
+      const socketAddress = req.getSocketRef().socket.remoteAddress;
+
+      this.loggerService.info(yellow("Request ") + JSON.stringify({ method, socketAddress }), this.constructor.name);
+    }
 
     return next.handle().pipe(
       tap((data) => {

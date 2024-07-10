@@ -10,6 +10,7 @@ import { NOTIF_SERVICE } from "@infrastructure/configuration/model/notif-service
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { ConfigurationService } from "@infrastructure/configuration/services/configuration.service";
 import { DatabaseModule } from "@infrastructure/database/database.module";
+import { HealthModule } from "@infrastructure/health/health.module";
 import { LoggerModule } from "@infrastructure/logger/logger.module";
 
 import { ChatModule } from "@modules/chat/chat.module";
@@ -20,6 +21,7 @@ import { RoomModule } from "@modules/room/room.module";
     ChatModule,
     RoomModule,
 
+    HealthModule,
     DatabaseModule,
     ConfigurationModule,
     LoggerModule,

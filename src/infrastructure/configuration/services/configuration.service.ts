@@ -1,7 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-import { APP_NAME, APP_PORT, APP_VERSION, AppConfiguration, NODE_ENV } from "../model/app-configuration";
+import {
+  APP_HTTP_PORT,
+  APP_NAME,
+  APP_SERVICE_PORT,
+  APP_VERSION,
+  AppConfiguration,
+  NODE_ENV,
+} from "../model/app-configuration";
 import {
   NOTIF_SERVICE_HOST,
   NOTIF_SERVICE_PORT,
@@ -53,7 +60,8 @@ export class ConfigurationService {
     this._appConfig = {
       name: this.getVariableFromEnvFile(APP_NAME),
       version: this.getVariableFromEnvFile(APP_VERSION),
-      port: parseInt(this.getVariableFromEnvFile(APP_PORT)),
+      servicePort: parseInt(this.getVariableFromEnvFile(APP_SERVICE_PORT)),
+      httpPort: parseInt(this.getVariableFromEnvFile(APP_HTTP_PORT)),
       env: appEnv,
     };
 
