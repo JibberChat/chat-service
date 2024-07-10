@@ -22,7 +22,7 @@
       "@modules/*": ["./src/modules/*"],
       "@entities/*": ["./src/entities/*"],
       "@helpers/*": ["./src/helpers/*"],
-      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@infrastructure/*": ["./src/infrastructure/*"]
     },
   }
 }
