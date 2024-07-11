@@ -31,6 +31,8 @@ export class LoggerInterceptor implements NestInterceptor {
       this.loggerService.info(yellow("Request ") + JSON.stringify({ method, socketAddress }), this.constructor.name);
     }
 
+    console.log("contextType", contextType);
+
     return next.handle().pipe(
       tap((data) => {
         this.loggerService.log(

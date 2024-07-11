@@ -1,8 +1,8 @@
-import { firstValueFrom, timeout } from "rxjs";
+import { catchError, firstValueFrom, of, timeout } from "rxjs";
 
 // import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
+import { ClientProxy, RpcException } from "@nestjs/microservices";
 
 import { CreateRoomDto } from "./dtos/create-room.dto";
 import { DeleteRoomDto } from "./dtos/delete-room.dto";
@@ -32,7 +32,7 @@ export class RoomService {
     // if (cachedRooms) return cachedRooms;
 
     const user = await firstValueFrom(this.userService.send({ cmd: "getUserProfile" }, { userId }).pipe(timeout(5000)));
-    if (!user) throw new NotFoundException(MESSAGES.NOT_FOUND);
+    if (!user) throw new RpcException(MESSAGES.NOT_FOUND);
 
     const rooms = await this.prismaService.room.findMany({
       where: {
@@ -69,10 +69,13 @@ export class RoomService {
   }
 
   async inviteUserToRoom(data: InviteUserRoomDto): Promise<{ success: boolean }> {
-    const user: User | undefined = await firstValueFrom(
-      this.userService.send({ cmd: "getUserByEmail" }, { userEmail: data.userEmail }).pipe(timeout(5000))
+    const user: User | null = await firstValueFrom(
+      this.userService.send({ cmd: "getUserByEmail" }, { userEmail: data.userEmail }).pipe(
+        timeout(5000),
+        catchError(() => of(null))
+      )
     );
-    if (!user) throw new NotFoundException(MESSAGES.NOT_FOUND);
+    if (!user) return { success: false };
 
     await this.prismaService.userRoom.create({
       data: {

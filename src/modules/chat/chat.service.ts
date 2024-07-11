@@ -2,8 +2,8 @@ import { Cache } from "cache-manager";
 import { firstValueFrom, timeout } from "rxjs";
 
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
+import { Inject, Injectable } from "@nestjs/common";
+import { ClientProxy, RpcException } from "@nestjs/microservices";
 
 import { GetMessagesDto } from "./dtos/get-messages.dto";
 import { SendMessageDto } from "./dtos/send-message.dto";
@@ -72,7 +72,7 @@ export class ChatService {
     const user = await firstValueFrom(
       this.userService.send({ cmd: "getMe" }, { userId: data.userId }).pipe(timeout(5000))
     );
-    if (!user) throw new NotFoundException(MESSAGES.NOT_FOUND);
+    if (!user) throw new RpcException(MESSAGES.NOT_FOUND);
 
     await this.cacheManager.del("messages-" + data.roomId);
 

@@ -3,6 +3,7 @@ import { Observable, throwError } from "rxjs";
 import { inspect } from "util";
 
 import { Catch, HttpException, HttpStatus } from "@nestjs/common";
+import { HttpAdapterHost } from "@nestjs/core";
 import { BaseRpcExceptionFilter, RpcException } from "@nestjs/microservices";
 
 import { LoggerService } from "@infrastructure/logger/services/logger.service";
