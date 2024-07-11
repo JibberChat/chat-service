@@ -14,6 +14,15 @@ import { RoomService } from "../room.service";
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { PrismaService } from "@infrastructure/database/services/prisma.service";
 
+interface PrismaRoom {
+  id: string;
+  name: string;
+  creatorId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  members?: [];
+}
+
 describe("RoomService", () => {
   let service: RoomService;
   let prismaService: PrismaService;
@@ -60,7 +69,7 @@ describe("RoomService", () => {
   describe("getUserRooms", () => {
     it("should return an array of rooms", async () => {
       const result: Room[] = [{ id: "1", name: "Room 1" }];
-      jest.spyOn(prismaService.room, "findMany").mockResolvedValue(result as any);
+      jest.spyOn(prismaService.room, "findMany").mockResolvedValue(result as PrismaRoom[]);
 
       expect(await service.getUserRooms("1")).toStrictEqual(result);
     });
@@ -99,7 +108,7 @@ describe("RoomService", () => {
   describe("createRoom", () => {
     it("should create a room", async () => {
       const result: Room = { id: "1", name: "Room 1" };
-      jest.spyOn(prismaService.room, "create").mockResolvedValue(result as any);
+      jest.spyOn(prismaService.room, "create").mockResolvedValue(result as PrismaRoom);
 
       expect(await service.createRoom({ name: "Room 1", userId: "1" } as CreateRoomDto)).toStrictEqual(result);
     });
@@ -108,8 +117,8 @@ describe("RoomService", () => {
   describe("updateRoom", () => {
     it("should update a room", async () => {
       const result: Room = { id: "1", name: "Updated Room" };
-      jest.spyOn(prismaService.room, "findUniqueOrThrow").mockResolvedValue(result as any);
-      jest.spyOn(prismaService.room, "update").mockResolvedValue(result as any);
+      jest.spyOn(prismaService.room, "findUniqueOrThrow").mockResolvedValue(result as PrismaRoom);
+      jest.spyOn(prismaService.room, "update").mockResolvedValue(result as PrismaRoom);
 
       expect(await service.updateRoom({ roomId: "1", name: "Updated Room" } as UpdateRoomDto)).toStrictEqual(result);
     });
@@ -118,8 +127,8 @@ describe("RoomService", () => {
   describe("deleteRoom", () => {
     it("should delete a room", async () => {
       const result: DeleteOrLeaveRoomResponse = { success: true, message: "Room deleted successfully" };
-      jest.spyOn(prismaService.room, "findUniqueOrThrow").mockResolvedValue({} as any);
-      jest.spyOn(prismaService.room, "delete").mockResolvedValue({} as any);
+      jest.spyOn(prismaService.room, "findUniqueOrThrow").mockResolvedValue({} as PrismaRoom);
+      jest.spyOn(prismaService.room, "delete").mockResolvedValue({} as PrismaRoom);
 
       expect(await service.deleteRoom({ roomId: "1", userId: "1" } as DeleteRoomDto)).toStrictEqual(result);
     });
@@ -128,12 +137,14 @@ describe("RoomService", () => {
   describe("leaveRoom", () => {
     it("should leave a room", async () => {
       const result: DeleteOrLeaveRoomResponse = { success: true, message: "Room deleted successfully" };
-      jest.spyOn(prismaService.userRoom, "delete").mockResolvedValue({} as any);
+      jest
+        .spyOn(prismaService.userRoom, "delete")
+        .mockResolvedValue({} as { userId: string; roomId: string; createdAt: Date; updatedAt: Date });
       jest.spyOn(prismaService.room, "findUniqueOrThrow").mockResolvedValue({
         id: "1",
         creatorId: "1",
         members: [],
-      } as any);
+      } as PrismaRoom);
 
       expect(await service.leaveRoom({ roomId: "1", userId: "1" } as LeaveRoomDto)).toStrictEqual(result);
     });

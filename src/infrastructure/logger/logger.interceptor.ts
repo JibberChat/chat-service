@@ -15,8 +15,6 @@ export class LoggerInterceptor implements NestInterceptor {
     const contextType = context.getType();
     const now = Date.now();
 
-    console.log("contextType", contextType);
-
     if (contextType === "http") {
       const req = context.switchToHttp().getRequest();
       const { url, method, params, query, body } = req;

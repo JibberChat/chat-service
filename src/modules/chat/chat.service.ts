@@ -108,7 +108,7 @@ export class ChatService {
     };
   }
 
-  async sendNotif(data: any) {
+  async sendNotif(data: { pushTokens: string[]; title: string; body: string }) {
     return await this.client.emit({ cmd: "sendNotifications" }, data).toPromise();
   }
 }
