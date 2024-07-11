@@ -3,13 +3,12 @@ import { firstValueFrom, timeout } from "rxjs";
 
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
-import { ClientProxy, RpcException } from "@nestjs/microservices";
+import { ClientProxy, ClientProxyFactory, RpcException, Transport } from "@nestjs/microservices";
 
 import { GetMessagesDto } from "./dtos/get-messages.dto";
 import { SendMessageDto } from "./dtos/send-message.dto";
 import { Message } from "./interfaces/chat.interface";
 
-import { NOTIF_SERVICE } from "@infrastructure/configuration/model/notif-service.configuration";
 import { USER_SERVICE } from "@infrastructure/configuration/model/user-service.configuration";
 import { PrismaService } from "@infrastructure/database/services/prisma.service";
 
@@ -19,12 +18,24 @@ import MESSAGES from "@helpers/messages/http-messages";
 
 @Injectable()
 export class ChatService {
+  private client: ClientProxy;
+
   constructor(
     private readonly prismaService: PrismaService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    @Inject(USER_SERVICE) private userService: ClientProxy,
-    @Inject(NOTIF_SERVICE) private notifService: ClientProxy
-  ) {}
+    @Inject(USER_SERVICE) private userService: ClientProxy
+  ) {
+    this.client = ClientProxyFactory.create({
+      transport: Transport.RMQ,
+      options: {
+        urls: ["amqp://localhost:5672"],
+        queue: "notification_queue",
+        queueOptions: {
+          durable: false,
+        },
+      },
+    });
+  }
 
   async getRoomMessages(roomId: GetMessagesDto["roomId"]): Promise<Message[]> {
     const cachedMessages = await this.cacheManager.get<Message[]>("messages-" + roomId);
@@ -84,7 +95,7 @@ export class ChatService {
       },
     });
 
-    // this.notifService.send({ cmd: "sendNotifications" }, { pushTokens: "", title: "JibberChat", body: "New message" });
+    await this.sendNotif({ pushTokens: [""], title: "JibberChat", body: "New message" });
 
     return {
       id: messageRegister.id,
@@ -95,5 +106,9 @@ export class ChatService {
         name: user.name,
       },
     };
+  }
+
+  async sendNotif(data: any) {
+    return await this.client.emit({ cmd: "sendNotifications" }, data).toPromise();
   }
 }

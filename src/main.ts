@@ -1,5 +1,5 @@
 import { ConfigService } from "@nestjs/config";
-import { HttpAdapterHost, NestFactory } from "@nestjs/core";
+import { , NestFactory } from "@nestjs/core";
 import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 
 import { AppModule } from "./modules/app.module";

@@ -1,7 +1,7 @@
 import { catchError, firstValueFrom, of, timeout } from "rxjs";
 
 // import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
 
 import { CreateRoomDto } from "./dtos/create-room.dto";

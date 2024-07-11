@@ -1,7 +1,5 @@
-import { Prisma, UserRoom } from "@prisma/client";
-import { firstValueFrom, of } from "rxjs";
+import { of } from "rxjs";
 
-import { NotFoundException } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { Test, TestingModule } from "@nestjs/testing";
 

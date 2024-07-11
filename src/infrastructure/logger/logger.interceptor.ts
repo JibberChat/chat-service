@@ -15,6 +15,8 @@ export class LoggerInterceptor implements NestInterceptor {
     const contextType = context.getType();
     const now = Date.now();
 
+    console.log("contextType", contextType);
+
     if (contextType === "http") {
       const req = context.switchToHttp().getRequest();
       const { url, method, params, query, body } = req;
@@ -30,8 +32,6 @@ export class LoggerInterceptor implements NestInterceptor {
 
       this.loggerService.info(yellow("Request ") + JSON.stringify({ method, socketAddress }), this.constructor.name);
     }
-
-    console.log("contextType", contextType);
 
     return next.handle().pipe(
       tap((data) => {
